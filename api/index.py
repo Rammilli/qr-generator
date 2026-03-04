@@ -7,4 +7,4 @@ app.include_router(router)
 
 @app.get("/")
 def root():
-    return {"message": "QR API running on Vercel"}
+    return {"status": "API running"}
