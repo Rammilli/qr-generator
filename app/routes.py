@@ -5,6 +5,7 @@ from app.services.qr_service import generate_qr_svg
 
 router = APIRouter()
 
+
 @router.post("/generate")
 def generate_qr(request: QRRequest):
 
@@ -17,7 +18,9 @@ def generate_qr(request: QRRequest):
             fill_color=request.fill_color,
             back_color=request.back_color,
             logo_base64=request.logo,
-            frame=request.frame
+            frame=request.frame,
+            logo_size=request.logo_size,
+            qr_size=request.qr_size
         )
 
         return Response(
