@@ -21,8 +21,8 @@ function App() {
     reader.readAsDataURL(file);
   };
 
-  const generateQR = async () => {
-    const response = await fetch("https://qr-generator-api.onrender.com/generate", {
+ const generateQR = async () => {
+  const response = await fetch("https://qr-generator-api-e8mb.onrender.com/generate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
