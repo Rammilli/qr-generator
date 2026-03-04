@@ -1,0 +1,19 @@
+{
+    "python.defaultInterpreterPath": "C:\\Users\\chint\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe",
+    "python.analysis.extraPaths": [
+        "."
+    ],
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.typeCheckingMode": "off",
+    "css.validate": false,
+    "scss.validate": false,
+    "less.validate": false,
+    "css.customData": [
+        ".vscode/tailwind.css-data.json"
+    ],
+    "editor.codeActionsOnSave": {},
+    "files.associations": {
+        "*.css": "css"
+    }
+}
