@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect } from "react"
+import { API_URL } from "./config"
 
 const QRContext = createContext(null)
 
@@ -104,10 +105,6 @@ export function QRProvider({ children }) {
             } else if (current.qrType === "wifi") {
                 data = `WIFI:T:${current.wifiEncryption};S:${current.wifiSSID};P:${current.wifiPassword};;`
             }
-
-            // VITE_API_URL = Render backend URL (e.g. https://qrcraft-backend.onrender.com)
-            // No env var = Vercel serverless at /api/generate
-            const API_URL = import.meta.env.VITE_API_URL || "/api"
 
             const res = await fetch(`${API_URL}/generate`, {
                 method: "POST",
