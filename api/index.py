@@ -1,3 +1,4 @@
 from app.main import app
 
-handler = app
+# Vercel expects the variable name `app`
+# for ASGI frameworks like FastAPI
