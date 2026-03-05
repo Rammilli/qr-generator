@@ -105,9 +105,9 @@ export function QRProvider({ children }) {
                 data = `WIFI:T:${current.wifiEncryption};S:${current.wifiSSID};P:${current.wifiPassword};;`
             }
 
-            // VITE_API_URL is set to Render backend URL in production (e.g. https://qrcraft-backend.onrender.com)
-            // Locally: set in frontend/.env as VITE_API_URL=http://127.0.0.1:8000
-            const API_URL = import.meta.env.VITE_API_URL || ""
+            // VITE_API_URL = Render backend URL (e.g. https://qrcraft-backend.onrender.com)
+            // No env var = Vercel serverless at /api/generate
+            const API_URL = import.meta.env.VITE_API_URL || "/api"
 
             const res = await fetch(`${API_URL}/generate`, {
                 method: "POST",
