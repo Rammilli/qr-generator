@@ -1,20 +1,10 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.routes import router
+import sys
+import os
 
-app = FastAPI()
+# Ensure the project root is on the Python path so `app.*` imports resolve
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# CORS so frontend can access API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from app.main import app  # noqa: E402 — re‑export the existing FastAPI app
 
-app.include_router(router)
-
-@app.get("/")
-def root():
-    return {"status": "API running"}
+# Vercel looks for a symbol named `handler` (or just the ASGI app)
+handler = app
