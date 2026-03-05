@@ -3,73 +3,46 @@ import QRPreview from "../editor/QRPreview"
 
 export default function Hero() {
     return (
-        <section id="hero" className="gradient-hero min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center min-h-[85vh]">
+        <div style={{ background: "#f0f2f5", minHeight: "100vh", padding: "32px 16px" }}>
+            {/* Page title */}
+            <div style={{ textAlign: "center", marginBottom: "24px" }}>
+                <h1 style={{ fontSize: "26px", fontWeight: "700", color: "#111827", margin: 0 }}>
+                    QR Code Generator
+                </h1>
+                <p style={{ fontSize: "14px", color: "#6b7280", marginTop: "6px" }}>
+                    Create free QR codes — no sign-up required
+                </p>
+            </div>
 
-                    {/* Left: Copy */}
-                    <div className="animate-fade-in-up pt-4">
-                        {/* Badge */}
-                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-light border border-primary/20 mb-6">
-                            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                            <span className="text-xs font-medium text-white/70">Free forever · No registration needed</span>
-                        </div>
+            {/* Main white card */}
+            <div
+                style={{
+                    maxWidth: "960px",
+                    margin: "0 auto",
+                    background: "#fff",
+                    borderRadius: "14px",
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexWrap: "wrap",
+                }}
+            >
+                {/* Left: editor */}
+                <div style={{ flex: "1 1 520px", padding: "24px", borderRight: "1px solid #e5e7eb", minWidth: "300px" }}>
+                    <QREditor />
+                </div>
 
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-tight text-white mb-5">
-                            Create <span className="gradient-text">Beautiful</span>
-                            <br />QR Codes in
-                            <br /><span className="gradient-text-warm">Seconds</span>
-                        </h1>
-
-                        <p className="text-lg text-white/50 mb-8 max-w-md leading-relaxed">
-                            Design stunning, scannable QR codes with your logo, custom colors &amp; frames.
-                            Professional quality for print &amp; digital. Download instantly.
-                        </p>
-
-                        {/* Single CTA */}
-                        <a
-                            href="#hero-editor"
-                            className="btn-primary px-7 py-3.5 rounded-xl font-semibold text-base inline-flex items-center gap-2"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create Free QR Code
-                        </a>
-                    </div>
-
-                    {/* Right: QR Editor Panel */}
-                    <div id="hero-editor" className="animate-fade-in delay-200">
-                        <div className="glass-light rounded-2xl p-1.5 shadow-glow-lg">
-                            <div className="glass rounded-xl p-4 sm:p-5">
-                                {/* Panel Header */}
-                                <div className="flex items-center justify-between mb-5">
-                                    <div>
-                                        <h2 className="font-display font-bold text-white text-base">QR Code Generator</h2>
-                                        <p className="text-xs text-white/40 mt-0.5">Customize and download your QR code</p>
-                                    </div>
-                                    <div className="flex gap-1.5">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-red-400/70" />
-                                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/70" />
-                                        <div className="w-2.5 h-2.5 rounded-full bg-green-400/70" />
-                                    </div>
-                                </div>
-
-                                {/* Editor + Preview side by side */}
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
-                                    <div className="md:col-span-3">
-                                        <QREditor />
-                                    </div>
-                                    <div className="md:col-span-2 flex justify-center">
-                                        <QRPreview />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                {/* Right: preview */}
+                <div style={{ flex: "0 0 280px", padding: "24px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <QRPreview />
                 </div>
             </div>
-        </section>
+
+            {/* Footer note */}
+            <p style={{ textAlign: "center", fontSize: "12px", color: "#9ca3af", marginTop: "16px" }}>
+                Free to use · No watermarks · High resolution downloads
+            </p>
+        </div>
     )
 }

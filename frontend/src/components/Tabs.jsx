@@ -1,63 +1,41 @@
-import { useState } from "react"
+import { Link, FileText, User, File } from "lucide-react"
 
-export default function Tabs({ setType }) {
-  const [active, setActive] = useState("link")
+export default function Tabs({ setType, active }) {
 
-  const changeTab = (t) => {
-    setActive(t)
-    if (setType) {
-      setType(t)
-    }
-  }
-
-  const commonClasses =
-    "px-4 py-2 rounded-full text-xs font-medium border transition-colors"
-
-  const activeClasses = "bg-primary text-white border-primary shadow-sm"
-  const inactiveClasses =
-    "bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200"
+  const tabs = [
+    { id: "link", label: "Link", icon: Link },
+    { id: "text", label: "Text", icon: FileText },
+    { id: "vcard", label: "VCard", icon: User },
+    { id: "pdf", label: "PDF", icon: File }
+  ]
 
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
-      <button
-        type="button"
-        onClick={() => changeTab("link")}
-        className={`${commonClasses} ${
-          active === "link" ? activeClasses : inactiveClasses
-        }`}
-      >
-        Link
-      </button>
+    <div className="flex gap-3">
 
-      <button
-        type="button"
-        onClick={() => changeTab("text")}
-        className={`${commonClasses} ${
-          active === "text" ? activeClasses : inactiveClasses
-        }`}
-      >
-        Text
-      </button>
+      {tabs.map((tab) => {
 
-      <button
-        type="button"
-        onClick={() => changeTab("vcard")}
-        className={`${commonClasses} ${
-          active === "vcard" ? activeClasses : inactiveClasses
-        }`}
-      >
-        vCard
-      </button>
+        const Icon = tab.icon
 
-      <button
-        type="button"
-        onClick={() => changeTab("pdf")}
-        className={`${commonClasses} ${
-          active === "pdf" ? activeClasses : inactiveClasses
-        }`}
-      >
-        PDF
-      </button>
+        return (
+          <button
+            key={tab.id}
+            onClick={() => setType(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition
+              ${active === tab.id
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200"
+              }`}
+          >
+
+            <Icon size={16}/>
+
+            {tab.label}
+
+          </button>
+        )
+
+      })}
+
     </div>
   )
 }

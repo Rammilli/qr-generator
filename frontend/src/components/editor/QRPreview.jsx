@@ -1,166 +1,173 @@
-import { useEffect, useState } from "react"
 import { useQR } from "../../QRContext"
-import { RiDownloadLine, RiFilePdfLine, RiQrCodeLine, RiLoader4Line } from "react-icons/ri"
-
-const PERKS = ["Free forever", "No watermark", "High resolution", "Commercial use"]
-
-/** Convert SVG string → object URL for use in <img> — gives proper object-fit scaling */
-function useSvgUrl(svgString) {
-    const [url, setUrl] = useState(null)
-
-    useEffect(() => {
-        if (!svgString) { setUrl(null); return }
-        const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" })
-        const objUrl = URL.createObjectURL(blob)
-        setUrl(objUrl)
-        return () => URL.revokeObjectURL(objUrl)
-    }, [svgString])
-
-    return url
-}
 
 export default function QRPreview() {
     const { state, downloadQR } = useQR()
-    const hasQR = Boolean(state.qrSvg)
-    const qrImgUrl = useSvgUrl(state.qrSvg)
-
-    // Logo overlay size proportional to the 185px inner display area
-    const INNER = 185
-    const logoSize = Math.round((state.logoSize / 100) * INNER)
-    const logoPad = 6
+    // Explicitly check for valid SVG wrapper payload
+    const hasQR = typeof state.qrSvg === 'string' && state.qrSvg.length > 50 && state.qrSvg.includes('<svg')
 
     return (
-        <div className="flex flex-col items-center gap-5">
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
+            position: "sticky",
+            top: "24px" // Keep in viewport
+        }}>
 
-            {/* Live indicator */}
-            <div className="flex items-center gap-2 text-[11px] text-white/40 uppercase tracking-widest font-semibold">
-                <span className={`inline-block w-1.5 h-1.5 rounded-full ${state.loading ? "bg-yellow-400" : "bg-emerald-400"} animate-pulse`} />
-                {state.loading ? "Generating…" : "Live Preview"}
-            </div>
+            {/* QR Box Container Exactly Like Reference */}
+            <div style={{
+                width: "100%",
+                maxWidth: "320px",
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: "16px",
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+                position: "relative"
+            }}>
 
-            {/* ─── QR Frame ────────────────────────────────────────────── */}
-            <div className="relative">
-                {/* Soft glow */}
-                <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-primary/15 to-accent/15 blur-2xl pointer-events-none" />
+                {/* QR Canvas / Placeholder */}
+                <div style={{
+                    width: "100%",
+                    aspectRatio: "1/1",
+                    background: hasQR ? "transparent" : "#f8fafc",
+                    border: hasQR ? "none" : "2px dashed #cbd5e1",
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "relative",
+                    overflow: "hidden"
+                }}>
 
-                {/* Outer frame — white card with scanner corners */}
-                <div
-                    className="relative bg-white rounded-2xl"
-                    style={{ width: 220, height: 220, boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
-                >
-                    {/* Corner scanner markers — PhonePe style */}
-                    {["top-2 left-2", "top-2 right-2", "bottom-2 left-2", "bottom-2 right-2"].map((pos, i) => (
-                        <div key={i} className={`absolute ${pos} w-7 h-7 pointer-events-none`}>
-                            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                {i === 0 && <><path d="M2 14 V2 H14" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" /></>}
-                                {i === 1 && <><path d="M26 14 V2 H14" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" /></>}
-                                {i === 2 && <><path d="M2 14 V26 H14" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" /></>}
-                                {i === 3 && <><path d="M26 14 V26 H14" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" /></>}
-                            </svg>
-                        </div>
-                    ))}
-
-                    {/* Loading spinner overlay */}
+                    {/* Loading Overlay */}
                     {state.loading && (
-                        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/80 rounded-2xl">
-                            <RiLoader4Line className="text-primary text-3xl animate-spin" />
+                        <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            background: "rgba(255,255,255,0.85)",
+                            zIndex: 10,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "8px"
+                        }}>
+                            <svg style={{ animation: "spin 0.8s linear infinite" }} width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#e2e8f0" strokeWidth="3" />
+                                <path d="M12 2a10 10 0 0 1 10 10" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+                            </svg>
                         </div>
                     )}
 
-                    {/* Inner content area with consistent padding */}
-                    <div className="absolute inset-0 flex items-center justify-center" style={{ padding: 16 }}>
-                        {hasQR && qrImgUrl ? (
-                            <div className="relative w-full h-full flex items-center justify-center">
-                                {/* QR image — object-fit:contain keeps it sharp & centred */}
-                                <img
-                                    src={qrImgUrl}
-                                    alt="QR Code"
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: "contain",
-                                        imageRendering: "crisp-edges",
-                                        display: "block",
-                                    }}
-                                    draggable={false}
-                                />
-
-                                {/* Logo centred over QR */}
-                                {state.logo && (
-                                    <div
-                                        className="absolute"
-                                        style={{
-                                            width: logoSize + logoPad * 2,
-                                            height: logoSize + logoPad * 2,
-                                            backgroundColor: "white",
-                                            borderRadius: state.logoBorderRadius + logoPad,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            boxShadow: "0 0 0 2px rgba(255,255,255,0.95)",
-                                        }}
-                                    >
-                                        <img
-                                            src={state.logo}
-                                            alt="Logo"
-                                            style={{
-                                                width: logoSize,
-                                                height: logoSize,
-                                                objectFit: "contain",
-                                                borderRadius: state.logoBorderRadius,
-                                                display: "block",
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center gap-3 text-center w-full h-full">
-                                <div className="w-14 h-14 rounded-xl bg-gray-50 flex items-center justify-center animate-float">
-                                    <RiQrCodeLine className="text-2xl text-primary/50" />
-                                </div>
-                                <p className="text-[11px] text-gray-300 font-medium leading-snug">
-                                    Enter content &amp;<br />click Generate
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Download buttons */}
-            <div className="flex gap-2 w-full" style={{ maxWidth: 220 }}>
-                <button
-                    type="button"
-                    onClick={() => downloadQR("png")}
-                    disabled={!hasQR || state.loading}
-                    className="flex-1 flex items-center justify-center gap-1.5 btn-primary py-2.5 rounded-xl text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                    <RiDownloadLine size={14} /> PNG
-                </button>
-                <button
-                    type="button"
-                    onClick={() => downloadQR("svg")}
-                    disabled={!hasQR || state.loading}
-                    className="flex-1 flex items-center justify-center gap-1.5 btn-secondary py-2.5 rounded-xl text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                    <RiFilePdfLine size={14} /> SVG
-                </button>
-            </div>
-
-            {/* Perks */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 w-full" style={{ maxWidth: 220 }}>
-                {PERKS.map((p) => (
-                    <div key={p} className="flex items-center gap-1.5 text-[10px] text-white/35">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                            <svg className="w-1.5 h-1.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    {/* Actual Rendered QR Code using inline HTML (fixes blank preview) */}
+                    {hasQR ? (
+                        <div
+                            className="qr-inline-box"
+                            dangerouslySetInnerHTML={{ __html: state.qrSvg }}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}
+                        />
+                    ) : (
+                        <div style={{ textAlign: "center", padding: "20px" }}>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" style={{ margin: "0 auto 8px" }}>
+                                <rect x="3" y="3" width="7" height="7" rx="1" />
+                                <rect x="14" y="3" width="7" height="7" rx="1" />
+                                <rect x="3" y="14" width="7" height="7" rx="1" />
+                                <path d="M14 14h2m2 0h2M14 17v2m4-2v2" />
                             </svg>
+                            <span style={{ fontSize: "13px", color: "#64748b", fontWeight: 500 }}>Enter content<br />to generate QR</span>
                         </div>
-                        {p}
+                    )}
+                </div>
+
+                {/* Status Indicator */}
+                <div style={{
+                    marginTop: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: state.error ? "#ef4444" : (hasQR ? "#10b981" : "#64748b")
+                }}>
+                    <span style={{
+                        width: "8px", height: "8px", borderRadius: "50%",
+                        background: state.loading ? "#f59e0b" : state.error ? "#ef4444" : hasQR ? "#10b981" : "#cbd5e1"
+                    }} />
+                    {state.loading ? "Generating..." : state.error ? "Generation Failed" : hasQR ? "QR Code Ready" : "Waiting for Input"}
+                </div>
+
+                {/* Error Banner */}
+                {state.error && (
+                    <div style={{ marginTop: "12px", padding: "8px 12px", background: "#fef2f2", color: "#b91c1c", fontSize: "11px", borderRadius: "6px", width: "100%", textAlign: "center", wordBreak: "break-word" }}>
+                        {state.error}
                     </div>
-                ))}
+                )}
+
+                {/* Generate / Action Area */}
+                <div style={{ width: "100%", marginTop: "20px" }}>
+                    <button
+                        onClick={downloadQR}
+                        disabled={!hasQR || state.loading}
+                        style={{
+                            width: "100%",
+                            padding: "12px",
+                            background: (!hasQR || state.loading) ? "#94a3b8" : "#2563eb",
+                            color: "#ffffff",
+                            border: "none",
+                            borderRadius: "8px",
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            cursor: (!hasQR || state.loading) ? "not-allowed" : "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                            boxShadow: (!hasQR || state.loading) ? "none" : "0 4px 12px rgba(37,99,235,0.2)"
+                        }}
+                    >
+                        ↓ Download PNG
+                    </button>
+
+                    <button
+                        onClick={() => downloadQR("svg")}
+                        disabled={!hasQR || state.loading}
+                        style={{
+                            width: "100%",
+                            marginTop: "8px",
+                            padding: "10px",
+                            background: "#ffffff",
+                            color: (!hasQR || state.loading) ? "#94a3b8" : "#334155",
+                            border: `1px solid ${(!hasQR || state.loading) ? "#e2e8f0" : "#cbd5e1"}`,
+                            borderRadius: "8px",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            cursor: (!hasQR || state.loading) ? "not-allowed" : "pointer"
+                        }}
+                    >
+                        Download SVG
+                    </button>
+                </div>
+
             </div>
+
+            {/* Perks Text */}
+            <div style={{ marginTop: "16px", fontSize: "12px", color: "#94a3b8", display: "flex", gap: "12px" }}>
+                <span>✓ High Quality</span>
+                <span>✓ No Expiry</span>
+                <span>✓ Commercial Use</span>
+            </div>
+
         </div>
     )
 }

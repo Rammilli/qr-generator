@@ -1,317 +1,120 @@
 import { useQR } from "../../../QRContext"
 
-// Social-media & purpose-driven templates
-const SOCIAL_TEMPLATES = [
-    // Social platforms
-    {
-        id: "whatsapp_style",
-        name: "WhatsApp",
-        fgColor: "#128C7E",
-        bgColor: "#ffffff",
-        pattern: "dots",
-        frame: "scan",
-        frameLabel: "WhatsApp",
-        frameLabelColor: "#128C7E",
-        badge: "💬",
-        badgeBg: "#25D366",
-    },
-    {
-        id: "instagram_style",
-        name: "Instagram",
-        fgColor: "#833AB4",
-        bgColor: "#ffffff",
-        pattern: "rounded",
-        frame: "rounded",
-        frameLabel: "Follow Us",
-        frameLabelColor: "#833AB4",
-        badge: "📸",
-        badgeBg: "linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)",
-    },
-    {
-        id: "tiktok_style",
-        name: "TikTok",
-        fgColor: "#010101",
-        bgColor: "#ffffff",
-        pattern: "dots",
-        frame: "badge",
-        frameLabel: "Follow Me",
-        frameLabelColor: "#010101",
-        badge: "🎵",
-        badgeBg: "#010101",
-    },
-    {
-        id: "youtube_style",
-        name: "YouTube",
-        fgColor: "#FF0000",
-        bgColor: "#ffffff",
-        pattern: "squares",
-        frame: "badge",
-        frameLabel: "Subscribe",
-        frameLabelColor: "#FF0000",
-        badge: "▶️",
-        badgeBg: "#FF0000",
-    },
-    {
-        id: "twitter_style",
-        name: "X / Twitter",
-        fgColor: "#000000",
-        bgColor: "#ffffff",
-        pattern: "rounded",
-        frame: "scan",
-        frameLabel: "Follow Us",
-        frameLabelColor: "#000000",
-        badge: "𝕏",
-        badgeBg: "#000000",
-    },
-    {
-        id: "spotify_style",
-        name: "Spotify",
-        fgColor: "#1DB954",
-        bgColor: "#191414",
-        pattern: "dots",
-        frame: "rounded",
-        frameLabel: "Listen Now",
-        frameLabelColor: "#1DB954",
-        badge: "🎧",
-        badgeBg: "#1DB954",
-    },
-    {
-        id: "linkedin_style",
-        name: "LinkedIn",
-        fgColor: "#0A66C2",
-        bgColor: "#ffffff",
-        pattern: "rounded",
-        frame: "border",
-        frameLabel: "Connect",
-        frameLabelColor: "#0A66C2",
-        badge: "💼",
-        badgeBg: "#0A66C2",
-    },
-    {
-        id: "github_style",
-        name: "GitHub",
-        fgColor: "#181717",
-        bgColor: "#f6f8fa",
-        pattern: "squares",
-        frame: "shadow",
-        frameLabel: "View Code",
-        frameLabelColor: "#181717",
-        badge: "⌨️",
-        badgeBg: "#181717",
-    },
-    // Purpose templates
-    {
-        id: "wifi_style",
-        name: "WiFi",
-        fgColor: "#0ea5e9",
-        bgColor: "#f0f9ff",
-        pattern: "dots",
-        frame: "scan",
-        frameLabel: "Connect WiFi",
-        frameLabelColor: "#0ea5e9",
-        badge: "📶",
-        badgeBg: "#0ea5e9",
-    },
-    {
-        id: "download_style",
-        name: "Download",
-        fgColor: "#7c3aed",
-        bgColor: "#faf5ff",
-        pattern: "rounded",
-        frame: "badge",
-        frameLabel: "Download",
-        frameLabelColor: "#7c3aed",
-        badge: "⬇️",
-        badgeBg: "#7c3aed",
-    },
-    {
-        id: "menu_style",
-        name: "Menu",
-        fgColor: "#b45309",
-        bgColor: "#fffbeb",
-        pattern: "dots",
-        frame: "scan",
-        frameLabel: "View Menu",
-        frameLabelColor: "#b45309",
-        badge: "🍽️",
-        badgeBg: "#f59e0b",
-    },
-    {
-        id: "payment_style",
-        name: "Pay",
-        fgColor: "#059669",
-        bgColor: "#ecfdf5",
-        pattern: "squares",
-        frame: "badge",
-        frameLabel: "Pay Now",
-        frameLabelColor: "#059669",
-        badge: "💳",
-        badgeBg: "#059669",
-    },
-    // Color themes
-    {
-        id: "ocean_style",
-        name: "Ocean",
-        fgColor: "#0369a1",
-        bgColor: "#f0f9ff",
-        pattern: "dots",
-        frame: "rounded",
-        frameLabel: "SCAN ME",
-        frameLabelColor: "#0369a1",
-        badge: "🌊",
-        badgeBg: "#0369a1",
-    },
-    {
-        id: "sunset_style",
-        name: "Sunset",
-        fgColor: "#9a3412",
-        bgColor: "#fff7ed",
-        pattern: "dots",
-        frame: "scan",
-        frameLabel: "SCAN ME",
-        frameLabelColor: "#9a3412",
-        badge: "🌅",
-        badgeBg: "#ea580c",
-    },
-    {
-        id: "midnight_style",
-        name: "Midnight",
-        fgColor: "#818cf8",
-        bgColor: "#1e1b4b",
-        pattern: "dots",
-        frame: null,
-        frameLabel: "SCAN ME",
-        frameLabelColor: "#818cf8",
-        badge: "🌙",
-        badgeBg: "#4338ca",
-    },
-    {
-        id: "neon_style",
-        name: "Neon",
-        fgColor: "#00ff88",
-        bgColor: "#0a0a1a",
-        pattern: "dots",
-        frame: null,
-        frameLabel: "SCAN ME",
-        frameLabelColor: "#00ff88",
-        badge: "⚡",
-        badgeBg: "#00ff88",
-    },
-]
+// 5×5 mini QR cell matrix for previews
+const C1 = [1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1]
+const C2 = [1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1]
 
-function MiniQR({ fgColor, bgColor, pattern }) {
-    const cells = Array.from({ length: 25 }, (_, i) => {
-        const fixed = [0, 1, 2, 3, 4, 5, 10, 9, 14, 15, 16, 17, 18, 19, 20, 24, 6, 12]
-        return fixed.includes(i) || (i % 3 !== 0 && i % 7 !== 2)
-    })
-    const r = pattern === "dots" ? "50%" : pattern === "rounded" ? "2px" : "0"
+function MiniQR({ fg, bg, pat, size = 44 }) {
+    const cs = size / 5
+    const cells = (pat === "rounded" || pat === "diamond") ? C2 : C1
     return (
-        <div className="grid grid-cols-5 gap-0.5" style={{ width: 36, height: 36 }}>
-            {cells.map((on, i) => (
-                <div key={i} style={{ background: on ? fgColor : "transparent", borderRadius: r, width: 6, height: 6 }} />
-            ))}
-        </div>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block", borderRadius: "4px" }}>
+            <rect width={size} height={size} fill={bg} />
+            {cells.map((on, i) => {
+                if (!on) return null
+                const col = i % 5, row = Math.floor(i / 5)
+                const x = col * cs, y = row * cs
+                if (pat === "dots") return <circle key={i} cx={x + cs / 2} cy={y + cs / 2} r={cs / 2 - 0.6} fill={fg} />
+                return <rect key={i} x={x + 0.5} y={y + 0.5} width={cs - 1} height={cs - 1} rx={pat === "rounded" ? 2.5 : 0} fill={fg} />
+            })}
+        </svg>
     )
 }
 
-function TemplateCard({ tpl }) {
-    const { state, update } = useQR()
-    const isActive = state.fgColor === tpl.fgColor && state.bgColor === tpl.bgColor
+// ── All templates ─────────────────────────────────────────────────────────────
+const TEMPLATES = [
+    // Social
+    { id: "whatsapp", name: "WhatsApp", grp: "Social", fg: "#128C7E", bg: "#fff", pat: "dots", frame: "badge", label: "WhatsApp", lc: "#128C7E", gc: null, emoji: "💬" },
+    { id: "instagram", name: "Instagram", grp: "Social", fg: "#833AB4", bg: "#fff", pat: "rounded", frame: "rounded", label: "Follow Us", lc: "#833AB4", gc: "#F77737", emoji: "📸" },
+    { id: "tiktok", name: "TikTok", grp: "Social", fg: "#010101", bg: "#fff", pat: "dots", frame: "badge", label: "Follow Me", lc: "#010101", gc: null, emoji: "🎵" },
+    { id: "youtube", name: "YouTube", grp: "Social", fg: "#FF0000", bg: "#fff", pat: "squares", frame: "badge", label: "Subscribe", lc: "#FF0000", gc: null, emoji: "▶" },
+    { id: "twitter", name: "X/Twitter", grp: "Social", fg: "#000000", bg: "#fff", pat: "rounded", frame: "scan", label: "Follow Us", lc: "#000000", gc: null, emoji: "𝕏" },
+    { id: "linkedin", name: "LinkedIn", grp: "Social", fg: "#0A66C2", bg: "#e7f0fa", pat: "rounded", frame: "border", label: "Connect", lc: "#0A66C2", gc: null, emoji: "💼" },
+    { id: "facebook", name: "Facebook", grp: "Social", fg: "#1877F2", bg: "#fff", pat: "dots", frame: "scan", label: "Like Us", lc: "#1877F2", gc: null, emoji: "👍" },
+    { id: "snapchat", name: "Snapchat", grp: "Social", fg: "#010101", bg: "#FFFC00", pat: "dots", frame: "badge", label: "Add Me", lc: "#010101", gc: null, emoji: "👻" },
+    { id: "github", name: "GitHub", grp: "Social", fg: "#181717", bg: "#f6f8fa", pat: "squares", frame: "shadow", label: "View Code", lc: "#181717", gc: null, emoji: "⌨" },
+    // Brand
+    { id: "spotify", name: "Spotify", grp: "Brand", fg: "#1DB954", bg: "#191414", pat: "dots", frame: "rounded", label: "Listen Now", lc: "#1DB954", gc: null, emoji: "🎧" },
+    { id: "netflix", name: "Netflix", grp: "Brand", fg: "#E50914", bg: "#141414", pat: "squares", frame: "badge", label: "Watch Now", lc: "#E50914", gc: null, emoji: "🎬" },
+    { id: "paypal", name: "PayPal", grp: "Brand", fg: "#003087", bg: "#fff", pat: "rounded", frame: "border", label: "Pay Now", lc: "#003087", gc: "#009CDE", emoji: "💳" },
+    { id: "amazon", name: "Amazon", grp: "Brand", fg: "#FF9900", bg: "#fff", pat: "squares", frame: "badge", label: "Shop Now", lc: "#FF9900", gc: null, emoji: "🛒" },
+    // Business
+    { id: "wifi", name: "WiFi", grp: "Business", fg: "#0ea5e9", bg: "#f0f9ff", pat: "dots", frame: "scan", label: "Connect", lc: "#0ea5e9", gc: null, emoji: "📶" },
+    { id: "menu", name: "Menu", grp: "Business", fg: "#b45309", bg: "#fffbeb", pat: "dots", frame: "scan", label: "View Menu", lc: "#b45309", gc: null, emoji: "🍽" },
+    { id: "payment", name: "Pay", grp: "Business", fg: "#059669", bg: "#ecfdf5", pat: "squares", frame: "badge", label: "Pay Now", lc: "#059669", gc: null, emoji: "💰" },
+    { id: "download", name: "Download", grp: "Business", fg: "#7c3aed", bg: "#faf5ff", pat: "rounded", frame: "badge", label: "Download", lc: "#7c3aed", gc: "#6366f1", emoji: "⬇" },
+    { id: "contact", name: "Contact", grp: "Business", fg: "#1e293b", bg: "#f8fafc", pat: "rounded", frame: "border", label: "Contact Me", lc: "#1e293b", gc: null, emoji: "👤" },
+    { id: "review", name: "Review", grp: "Business", fg: "#d97706", bg: "#fffbeb", pat: "dots", frame: "badge", label: "Rate Us", lc: "#d97706", gc: null, emoji: "⭐" },
+    // Themes
+    { id: "classic", name: "Classic", grp: "Theme", fg: "#000000", bg: "#ffffff", pat: "squares", frame: null, label: "SCAN ME", lc: "#000000", gc: null, emoji: "◾" },
+    { id: "ocean", name: "Ocean", grp: "Theme", fg: "#0369a1", bg: "#f0f9ff", pat: "dots", frame: "rounded", label: "SCAN ME", lc: "#0369a1", gc: "#06b6d4", emoji: "🌊" },
+    { id: "midnight", name: "Midnight", grp: "Theme", fg: "#818cf8", bg: "#1e1b4b", pat: "dots", frame: null, label: "SCAN ME", lc: "#818cf8", gc: "#06b6d4", emoji: "🌙" },
+    { id: "neon", name: "Neon", grp: "Theme", fg: "#00ff88", bg: "#0a0a1a", pat: "dots", frame: null, label: "SCAN ME", lc: "#00ff88", gc: "#00ccff", emoji: "⚡" },
+    { id: "sunset", name: "Sunset", grp: "Theme", fg: "#ea580c", bg: "#fff7ed", pat: "dots", frame: "scan", label: "SCAN ME", lc: "#ea580c", gc: "#f59e0b", emoji: "🌅" },
+    { id: "rose", name: "Rose", grp: "Theme", fg: "#e11d48", bg: "#fff1f2", pat: "rounded", frame: "rounded", label: "SCAN ME", lc: "#e11d48", gc: null, emoji: "🌹" },
+    { id: "grape", name: "Grape", grp: "Theme", fg: "#7c3aed", bg: "#faf5ff", pat: "dots", frame: null, label: "SCAN ME", lc: "#7c3aed", gc: "#ec4899", emoji: "🍇" },
+]
 
-    const apply = () => {
-        update({
-            fgColor: tpl.fgColor,
-            bgColor: tpl.bgColor,
-            pattern: tpl.pattern,
-            frame: tpl.frame,
-            frameLabel: tpl.frameLabel,
-            frameLabelColor: tpl.frameLabelColor,
-        })
-    }
+const GROUPS = ["Social", "Brand", "Business", "Theme"]
+
+function TemplateCard({ t }) {
+    const { state, update } = useQR()
+    const active = state.fgColor === t.fg && state.bgColor === t.bg && state.pattern === t.pat
+
+    const apply = () => update({
+        fgColor: t.fg, bgColor: t.bg, pattern: t.pat,
+        frame: t.frame ?? null,
+        frameLabel: t.label || "SCAN ME",
+        frameLabelColor: t.lc || "#000000",
+        gradient: Boolean(t.gc),
+        gradientColor: t.gc || "#6366f1",
+    })
 
     return (
         <button
             type="button"
             onClick={apply}
-            title={tpl.name}
-            className={`relative flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all ${isActive
-                    ? "border-primary bg-primary/10 shadow-glow scale-105"
-                    : "border-white/10 bg-white/[0.02] hover:border-white/30 hover:bg-white/5 hover:scale-105"
-                }`}
+            title={t.name}
+            style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: "5px",
+                padding: "8px 4px 6px", border: `2px solid ${active ? "#2563eb" : "#e5e7eb"}`,
+                borderRadius: "10px", background: active ? "#eff6ff" : "#fff",
+                cursor: "pointer", transition: "all 0.15s", position: "relative",
+                boxShadow: active ? "0 0 0 1px #93c5fd" : "none",
+            }}
         >
-            {/* Badge emoji */}
-            <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] absolute -top-1.5 -right-1.5 z-10"
-                style={{ background: tpl.badgeBg }}
-            >
-                <span>{tpl.badge}</span>
-            </div>
-
-            {/* Mini QR preview */}
-            <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center"
-                style={{ background: tpl.bgColor }}
-            >
-                <MiniQR fgColor={tpl.fgColor} bgColor={tpl.bgColor} pattern={tpl.pattern} />
-            </div>
-
-            {/* Name */}
-            <span className={`text-[9px] font-semibold text-center leading-tight ${isActive ? "text-primary" : "text-white/50"}`}>
-                {tpl.name}
-            </span>
-
-            {/* Active checkmark */}
-            {isActive && (
-                <div className="absolute -top-1 -left-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                    <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
+            {active && (
+                <div style={{ position: "absolute", top: "-5px", right: "-5px", width: "14px", height: "14px", background: "#2563eb", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 </div>
             )}
+            <MiniQR fg={t.fg} bg={t.bg} pat={t.pat} />
+            <span style={{ fontSize: "9px", fontWeight: 600, color: active ? "#2563eb" : "#6b7280", lineHeight: 1, textAlign: "center", maxWidth: "100%" }}>
+                {t.name}
+            </span>
         </button>
     )
 }
 
-export default function Templates() {
+export default function TemplatesTab() {
     const { update } = useQR()
-
-    const reset = () => update({
-        fgColor: "#000000",
-        bgColor: "#ffffff",
-        pattern: "squares",
-        frame: null,
-        frameLabel: "SCAN ME",
-        frameLabelColor: "#000000",
-    })
-
     return (
-        <div className="space-y-3">
-            <div className="flex items-center justify-between">
-                <p className="text-[11px] text-white/40 uppercase tracking-wider">Choose a Template</p>
-                <button
-                    type="button"
-                    onClick={reset}
-                    className="text-[10px] text-white/30 hover:text-white/60 transition"
-                >
-                    Reset
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button type="button"
+                    onClick={() => update({ fgColor: "#000000", bgColor: "#ffffff", pattern: "squares", frame: null, frameLabel: "SCAN ME", frameLabelColor: "#000000", gradient: false })}
+                    style={{ fontSize: "11px", color: "#9ca3af", background: "none", border: "none", cursor: "pointer", textDecoration: "underline", padding: 0 }}>
+                    Reset to default
                 </button>
             </div>
-
-            {/* Social platforms row label */}
-            <p className="text-[10px] text-white/25 uppercase tracking-widest">Social & Purpose</p>
-            <div className="grid grid-cols-4 gap-2">
-                {SOCIAL_TEMPLATES.slice(0, 12).map((tpl) => (
-                    <TemplateCard key={tpl.id} tpl={tpl} />
-                ))}
-            </div>
-
-            {/* Color themes */}
-            <p className="text-[10px] text-white/25 uppercase tracking-widest pt-1">Color Themes</p>
-            <div className="grid grid-cols-4 gap-2">
-                {SOCIAL_TEMPLATES.slice(12).map((tpl) => (
-                    <TemplateCard key={tpl.id} tpl={tpl} />
-                ))}
-            </div>
+            {GROUPS.map(grp => (
+                <div key={grp}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 7px" }}>{grp}</p>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "6px" }}>
+                        {TEMPLATES.filter(t => t.grp === grp).map(t => <TemplateCard key={t.id} t={t} />)}
+                    </div>
+                </div>
+            ))}
         </div>
     )
 }

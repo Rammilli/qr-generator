@@ -1,92 +1,176 @@
 import { useState } from "react"
 import { useQR } from "../../../QRContext"
 
-function ColorRow({ label, colorKey }) {
-    const { state, update } = useQR()
-    const [hex, setHex] = useState(state[colorKey])
-
-    const handleHexChange = (v) => {
-        setHex(v)
-        if (/^#[0-9A-Fa-f]{6}$/.test(v)) update({ [colorKey]: v })
-    }
-
-    const handleColorChange = (v) => {
-        setHex(v)
-        update({ [colorKey]: v })
-    }
-
-    return (
-        <div>
-            <label className="block text-[11px] text-white/40 mb-2 uppercase tracking-wider">{label}</label>
-            <div className="flex items-center gap-2.5">
-                <div className="relative">
-                    <input
-                        type="color"
-                        value={state[colorKey]}
-                        onChange={e => handleColorChange(e.target.value)}
-                        className="w-9 h-9 rounded-lg cursor-pointer border border-white/10"
-                    />
-                </div>
-                <input
-                    type="text"
-                    value={hex}
-                    onChange={e => handleHexChange(e.target.value)}
-                    maxLength={7}
-                    className="input-dark flex-1 rounded-lg px-3 py-2 text-sm font-mono uppercase"
-                />
-            </div>
-        </div>
-    )
-}
-
-const PRESET_COLORS = [
-    "#000000", "#ffffff", "#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#ec4899", "#8b5cf6", "#0ea5e9",
+const PALETTE = [
+    "#000000", "#ffffff", "#1877f2", "#1da1f2", "#e1306c", "#2563eb",
+    "#10b981", "#ef4444", "#f59e0b", "#6366f1", "#8b5cf6", "#14b8a6"
 ]
 
 export default function ColorsTab() {
     const { state, update } = useQR()
+    const [view, setView] = useState("Single Color") // "Single Color" | "Gradient"
 
     return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-                <ColorRow label="Foreground Color" colorKey="fgColor" />
-                <ColorRow label="Background Color" colorKey="bgColor" />
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+            {/* View Tabs */}
+            <div style={{ display: "flex", background: "#f1f5f9", padding: "4px", borderRadius: "8px" }}>
+                {["Single Color", "Gradient"].map(v => (
+                    <button
+                        key={v}
+                        onClick={() => {
+                            setView(v)
+                            update({ gradient: v === "Gradient" })
+                        }}
+                        style={{
+                            flex: 1,
+                            padding: "8px",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            borderRadius: "6px",
+                            background: view === v ? "#fff" : "transparent",
+                            color: view === v ? "#2563eb" : "#475569",
+                            border: "none",
+                            boxShadow: view === v ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                            cursor: "pointer"
+                        }}
+                    >
+                        {v}
+                    </button>
+                ))}
             </div>
 
-            {/* Preset palette */}
-            <div>
-                <label className="block text-[11px] text-white/40 mb-2 uppercase tracking-wider">Quick Colors</label>
-                <div className="flex flex-wrap gap-2">
-                    {PRESET_COLORS.map((c) => (
+            {/* Colors Selection Grid Exact Match */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+
+                {/* Foreground Pickers */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <label style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>
+                        Foreground Color
+                    </label>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <input
+                            type="color"
+                            value={state.fgColor}
+                            onChange={(e) => update({ fgColor: e.target.value })}
+                            style={{
+                                width: "40px", height: "40px", border: "none", padding: 0,
+                                borderRadius: "8px", cursor: "pointer", overflow: "hidden", outline: "none"
+                            }}
+                        />
+                        <input
+                            type="text"
+                            value={state.fgColor}
+                            onChange={(e) => update({ fgColor: e.target.value })}
+                            className="input-light"
+                            style={{ flex: 1, textTransform: "uppercase" }}
+                        />
+                    </div>
+                </div>
+
+                {/* Background Pickers */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <label style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>
+                        Background Color
+                    </label>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <input
+                            type="color"
+                            value={state.bgColor}
+                            onChange={(e) => update({ bgColor: e.target.value })}
+                            style={{
+                                width: "40px", height: "40px", border: "none", padding: 0,
+                                borderRadius: "8px", cursor: "pointer", overflow: "hidden", outline: "none"
+                            }}
+                        />
+                        <input
+                            type="text"
+                            value={state.bgColor}
+                            onChange={(e) => update({ bgColor: e.target.value })}
+                            className="input-light"
+                            style={{ flex: 1, textTransform: "uppercase" }}
+                        />
+                    </div>
+                </div>
+
+            </div>
+
+            {/* Gradient Options (if active) */}
+            {state.gradient && (
+                <div style={{ padding: "16px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <label style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>
+                            Second Gradient Color
+                        </label>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <input
+                                type="color"
+                                value={state.gradientColor}
+                                onChange={(e) => update({ gradientColor: e.target.value })}
+                                style={{
+                                    width: "40px", height: "40px", border: "none", padding: 0,
+                                    borderRadius: "8px", cursor: "pointer", overflow: "hidden", outline: "none"
+                                }}
+                            />
+                            <input
+                                type="text"
+                                value={state.gradientColor}
+                                onChange={(e) => update({ gradientColor: e.target.value })}
+                                className="input-light"
+                                style={{ flex: 1, textTransform: "uppercase" }}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>Gradient Direction</label>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                            {["vertical", "horizontal", "diagonal"].map(dir => (
+                                <button
+                                    key={dir}
+                                    onClick={() => update({ gradientDirection: dir })}
+                                    style={{
+                                        border: state.gradientDirection === dir ? "2px solid #2563eb" : "1px solid #cbd5e1",
+                                        background: "#fff",
+                                        padding: "8px",
+                                        borderRadius: "6px",
+                                        fontSize: "12px",
+                                        fontWeight: 600,
+                                        color: state.gradientDirection === dir ? "#2563eb" : "#475569",
+                                        cursor: "pointer",
+                                        textTransform: "capitalize"
+                                    }}
+                                >
+                                    {dir}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Quick Palette */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <label style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>Preset Colors</label>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px" }}>
+                    {PALETTE.map(c => (
                         <button
                             key={c}
-                            type="button"
                             onClick={() => update({ fgColor: c })}
                             title={c}
-                            className="w-7 h-7 rounded-lg border-2 transition-all hover:scale-110"
                             style={{
                                 background: c,
-                                borderColor: state.fgColor === c ? "#6366f1" : "rgba(255,255,255,0.1)",
+                                border: c === "#ffffff" ? "1px solid #e2e8f0" : "none",
+                                borderRadius: "8px",
+                                aspectRatio: "1/1",
+                                cursor: "pointer",
+                                boxShadow: "inset 0 2px 4px rgba(0,0,0,0.05)"
                             }}
                         />
                     ))}
                 </div>
             </div>
 
-            {/* Gradient Toggle */}
-            <label className="flex items-center justify-between cursor-pointer">
-                <span className="text-sm text-white/70">Enable Gradient</span>
-                <div
-                    onClick={() => update({ gradient: !state.gradient })}
-                    className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${state.gradient ? "bg-primary" : "bg-white/10"}`}
-                >
-                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${state.gradient ? "left-5" : "left-0.5"}`} />
-                </div>
-            </label>
-
-            {state.gradient && (
-                <ColorRow label="Gradient Color" colorKey="gradientColor" />
-            )}
         </div>
     )
 }

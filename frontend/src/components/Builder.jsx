@@ -1,6 +1,6 @@
-import { useState } from "react"
-import Tabs from "./Tabs"
-import Accordion from "./Accordion"
+import { useState, useEffect, useRef, useCallback } from "react"
+import Tabs from "./tabs"
+import Accordion from "./accordion"
 import Preview from "./Preview"
 import Templates from "./Templates"
 import Logo from "./Logo"
@@ -10,124 +10,157 @@ import Patterns from "./Patterns"
 import Background from "./Background"
 import Options from "./Options"
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
+const DEFAULT_DESIGN = {
+  fgColor: "#000000",
+  bgColor: "#ffffff",
+  gradient: false,
+  gradientColor: "#6366f1",
+  gradientDirection: "horizontal",
+  pattern: "squares",
+  logo: null,
+  logoSize: 25,
+  frame: null,
+  frameLabel: "SCAN ME",
+  frameLabelFont: "Arial",
+  frameLabelColor: "#000000",
+  frameColor: null,
+  bgImage: null,
+  errorCorrection: "H",
+  quietZone: 4,
+  qrSize: 300,
+}
+
+const SECTIONS = [
+  "Design Templates", "Your Logo", "Your Colors",
+  "Custom Frames", "Patterns", "Background", "Options"
+]
 
 export default function Builder() {
   const [type, setType] = useState("link")
   const [data, setData] = useState("")
+  const [design, setDesign] = useState(DEFAULT_DESIGN)
   const [qr, setQr] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [open, setOpen] = useState("Design Templates")
 
-  const generateQR = async () => {
-    if (!data.trim()) {
-      setError("Please enter some data to encode.")
-      return
-    }
+  const debounce = useRef(null)
 
-    setLoading(true)
-    setError("")
+  const patchDesign = useCallback((updates) => {
+    setDesign(prev => ({ ...prev, ...updates }))
+  }, [])
 
+  const generate = useCallback(async (currentData, currentType, d) => {
+    const content = currentData?.trim() || ""
+    if (!content) return
+    setLoading(true); setError("")
     try {
-      const res = await fetch(`${API_URL}/generate`, {
+      const res = await fetch("http://127.0.0.1:8000/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data, type }),
+        body: JSON.stringify({
+          data: content,
+          type: currentType,
+          fill_color: d.fgColor,
+          back_color: d.bgColor,
+          gradient_color: d.gradient ? d.gradientColor : null,
+          gradient_direction: d.gradientDirection,
+          logo: d.logo || null,
+          logo_size: d.logoSize,
+          frame: d.frame || null,
+          frame_label: d.frameLabel || "SCAN ME",
+          frame_label_font: d.frameLabelFont || "Arial",
+          frame_label_color: d.frameLabelColor || "#000000",
+          frame_color: d.frameColor || null,
+          qr_size: d.qrSize,
+          pattern: d.pattern,
+          error_correction: d.errorCorrection,
+          quiet_zone: d.quietZone,
+        }),
       })
-
-      if (!res.ok) {
-        const message = await res.text()
-        throw new Error(message || "Failed to generate QR code")
-      }
-
-      const svg = await res.text()
-      setQr(svg)
-    } catch (err) {
-      setError(err.message || "Something went wrong while generating the QR")
+      if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
+      setQr(await res.text())
+    } catch (e) {
+      setError(e.message || "Failed to reach backend")
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  // Debounced auto-regen whenever data, type, or any design option changes
+  useEffect(() => {
+    if (debounce.current) clearTimeout(debounce.current)
+    debounce.current = setTimeout(() => generate(data, type, design), 500)
+    return () => clearTimeout(debounce.current)
+  }, [data, type, design, generate])
+
+  const handleToggle = (section) => {
+    setOpen(prev => prev === section ? null : section)
   }
 
   const getPlaceholder = () => {
-    if (type === "text") return "Enter text to encode"
-    if (type === "vcard") return "Paste vCard content"
+    if (type === "text") return "Enter text to encode…"
+    if (type === "vcard") return "Paste vCard content…"
     if (type === "pdf") return "https://example.com/file.pdf"
     return "https://example.com"
   }
 
+  const sectionMap = {
+    "Design Templates": <Templates design={design} patchDesign={patchDesign} />,
+    "Your Logo": <Logo design={design} patchDesign={patchDesign} />,
+    "Your Colors": <Colors design={design} patchDesign={patchDesign} />,
+    "Custom Frames": <Frames design={design} patchDesign={patchDesign} />,
+    "Patterns": <Patterns design={design} patchDesign={patchDesign} />,
+    "Background": <Background design={design} patchDesign={patchDesign} />,
+    "Options": <Options design={design} patchDesign={patchDesign} />,
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-6 lg:p-8 rounded-2xl shadow-card">
-      {/* LEFT BUILDER */}
-      <div>
-        <Tabs setType={setType} />
+    <div className="grid lg:grid-cols-[1fr_300px] gap-8 bg-white rounded-2xl shadow-lg overflow-hidden">
 
-        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2 mt-1">
-          {type === "link" && "Destination URL"}
-          {type === "text" && "Text content"}
-          {type === "vcard" && "vCard data"}
-          {type === "pdf" && "PDF link"}
+      {/* ── LEFT: editor ──────────────────────────────────────── */}
+      <div className="p-6 overflow-y-auto max-h-[88vh]">
+
+        {/* Type tabs */}
+        <Tabs setType={setType} active={type} />
+
+        {/* Content input */}
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mt-5 mb-1.5">
+          Content
         </label>
-
         <input
           type="text"
           placeholder={getPlaceholder()}
           value={data}
-          onChange={(e) => setData(e.target.value)}
-          className="w-full border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none p-3 rounded-lg text-sm"
+          onChange={e => setData(e.target.value)}
+          className="w-full border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none p-3 rounded-xl text-sm transition"
         />
-
-        <p className="text-[11px] text-slate-400 mt-1">
-          The destination will be encoded into a high-quality QR code.
+        <p className="text-xs text-gray-400 mt-1.5 mb-5">
+          QR updates automatically as you type
         </p>
 
-        {error && (
-          <p className="mt-2 text-xs text-red-500 bg-red-50 border border-red-100 rounded px-3 py-2">
-            {error}
-          </p>
-        )}
-
-        <div className="mt-6 space-y-3">
-          <Accordion title="Design Templates">
-            <Templates />
-          </Accordion>
-
-          <Accordion title="Your Logo">
-            <Logo />
-          </Accordion>
-
-          <Accordion title="Your Colors">
-            <Colors />
-          </Accordion>
-
-          <Accordion title="Custom Frames">
-            <Frames />
-          </Accordion>
-
-          <Accordion title="Patterns">
-            <Patterns />
-          </Accordion>
-
-          <Accordion title="Background">
-            <Background />
-          </Accordion>
-
-          <Accordion title="Options">
-            <Options />
-          </Accordion>
+        {/* Accordion sections */}
+        <div className="space-y-2">
+          {SECTIONS.map(s => (
+            <Accordion
+              key={s}
+              title={s}
+              isOpen={open === s}
+              onToggle={() => handleToggle(s)}
+            >
+              {sectionMap[s]}
+            </Accordion>
+          ))}
         </div>
-
-        <button
-          onClick={generateQR}
-          disabled={loading}
-          className="w-full bg-primary hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white py-3 rounded-lg mt-6 text-sm font-semibold shadow-md transition-colors"
-        >
-          {loading ? "Generating..." : "Generate QR"}
-        </button>
       </div>
 
-      {/* RIGHT PREVIEW */}
-      <Preview qr={qr} />
+      {/* ── RIGHT: preview ────────────────────────────────────── */}
+      <Preview
+        qr={qr}
+        loading={loading}
+        error={error}
+        design={design}
+      />
     </div>
   )
 }

@@ -1,104 +1,150 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useQR } from "../../../QRContext"
-import { RiImageLine, RiDeleteBin6Line } from "react-icons/ri"
+
+const BG_PALETTE = [
+    "#ffffff", "#f8fafc", "#f1f5f9", "#e2e8f0", "#cbd5e1", "#94a3b8",
+    "#fef2f2", "#fff7ed", "#fefce8", "#f0fdf4", "#ecfeff", "#eff6ff"
+]
 
 export default function BackgroundTab() {
     const { state, update } = useQR()
-    const inputRef = useRef()
+    const inputRef = useRef(null)
+    const [tab, setTab] = useState("Color") // "Color" | "Image"
 
-    const handleBgImage = (e) => {
+    const handleUpload = (e) => {
         const file = e.target.files[0]
         if (!file) return
+
         const reader = new FileReader()
         reader.onload = (ev) => update({ bgImage: ev.target.result })
         reader.readAsDataURL(file)
     }
 
     return (
-        <div className="space-y-4">
-            {/* Background mode */}
-            <div className="flex gap-2">
-                <button
-                    type="button"
-                    onClick={() => update({ bgImage: null })}
-                    className={`flex-1 py-2.5 rounded-lg border text-xs font-medium transition-all ${!state.bgImage
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 text-white/40 hover:border-white/20"
-                        }`}
-                >
-                    🎨 Solid Color
-                </button>
-                <button
-                    type="button"
-                    onClick={() => inputRef.current?.click()}
-                    className={`flex-1 py-2.5 rounded-lg border text-xs font-medium transition-all ${state.bgImage
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 text-white/40 hover:border-white/20"
-                        }`}
-                >
-                    🖼️ Image
-                </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+
+            {/* Type selector */}
+            <div style={{ display: "flex", background: "#f1f5f9", padding: "4px", borderRadius: "8px" }}>
+                {["Color", "Image"].map(v => (
+                    <button
+                        key={v}
+                        onClick={() => {
+                            setTab(v)
+                            if (v === "Color") update({ bgImage: null })
+                        }}
+                        style={{
+                            flex: 1,
+                            padding: "8px",
+                            fontSize: "13px",
+                            fontWeight: 600,
+                            borderRadius: "6px",
+                            background: tab === v ? "#fff" : "transparent",
+                            color: tab === v ? "#2563eb" : "#475569",
+                            border: "none",
+                            boxShadow: tab === v ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                            cursor: "pointer"
+                        }}
+                    >
+                        {v}
+                    </button>
+                ))}
             </div>
 
-            {!state.bgImage ? (
-                <div>
-                    <label className="block text-[11px] text-white/40 mb-2 uppercase tracking-wider">Background Color</label>
-                    <div className="flex items-center gap-3">
-                        <input
-                            type="color"
-                            value={state.bgColor}
-                            onChange={e => update({ bgColor: e.target.value })}
-                            className="w-9 h-9 rounded-lg cursor-pointer border border-white/10"
-                        />
-                        <input
-                            type="text"
-                            value={state.bgColor}
-                            onChange={e => {
-                                if (/^#[0-9A-Fa-f]{6}$/.test(e.target.value)) update({ bgColor: e.target.value })
-                            }}
-                            maxLength={7}
-                            className="input-dark flex-1 rounded-lg px-3 py-2 text-sm font-mono uppercase"
-                        />
+            {/* Content Based on Tab */}
+            {tab === "Color" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <label style={{ fontSize: "13px", fontWeight: 600, color: "#334155" }}>
+                            Background Color
+                        </label>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                            <input
+                                type="color"
+                                value={state.bgColor}
+                                onChange={(e) => update({ bgColor: e.target.value })}
+                                style={{
+                                    width: "48px", height: "48px", border: "none", padding: 0,
+                                    borderRadius: "10px", cursor: "pointer", overflow: "hidden", outline: "none"
+                                }}
+                            />
+                            <input
+                                type="text"
+                                value={state.bgColor}
+                                onChange={(e) => update({ bgColor: e.target.value })}
+                                className="input-light"
+                                style={{ flex: 1, padding: "12px 14px", textTransform: "uppercase" }}
+                            />
+                        </div>
                     </div>
 
-                    {/* Color swatches */}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                        {["#ffffff", "#f8fafc", "#1e293b", "#0f172a", "#fef3c7", "#ecfdf5", "#eff6ff", "#fdf2f8", "#1a1a2e"].map((c) => (
-                            <button
-                                key={c}
-                                type="button"
-                                onClick={() => update({ bgColor: c })}
-                                className="w-7 h-7 rounded-lg border-2 hover:scale-110 transition-transform"
-                                style={{ background: c, borderColor: state.bgColor === c ? "#6366f1" : "rgba(255,255,255,0.1)" }}
-                            />
-                        ))}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        <label style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>Quick Selection</label>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "8px" }}>
+                            {BG_PALETTE.map(c => (
+                                <button
+                                    key={c}
+                                    onClick={() => update({ bgColor: c })}
+                                    title={c}
+                                    style={{
+                                        background: c,
+                                        border: "1px solid #e2e8f0",
+                                        borderRadius: "6px",
+                                        aspectRatio: "1/1",
+                                        cursor: "pointer",
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             ) : (
-                <div className="flex items-center gap-3">
-                    <div
-                        className="w-20 h-16 rounded-lg border border-white/10 bg-cover bg-center flex-shrink-0"
-                        style={{ backgroundImage: `url(${state.bgImage})` }}
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {state.bgImage && (
+                        <div style={{ position: "relative", width: "100%", height: "120px", borderRadius: "8px", overflow: "hidden", border: "1px solid #e2e8f0" }}>
+                            <img src={state.bgImage} alt="bg" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <button
+                                onClick={() => update({ bgImage: null })}
+                                style={{
+                                    position: "absolute", top: "8px", right: "8px",
+                                    background: "#fff", border: "none", borderRadius: "50%",
+                                    width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center",
+                                    cursor: "pointer", boxShadow: "0 2px 5px rgba(0,0,0,0.2)", fontSize: "14px"
+                                }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    )}
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        ref={inputRef}
+                        onChange={handleUpload}
+                        style={{ display: "none" }}
                     />
-                    <div className="flex-1">
-                        <p className="text-xs text-white/50 mb-1">Background image set</p>
-                        <p className="text-[10px] text-white/30">QR code will overlay on image</p>
-                    </div>
                     <button
-                        type="button"
-                        onClick={() => update({ bgImage: null })}
-                        className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
+                        onClick={() => inputRef.current?.click()}
+                        style={{
+                            width: "100%",
+                            padding: "16px",
+                            background: "#f8fafc",
+                            border: "2px dashed #cbd5e1",
+                            borderRadius: "8px",
+                            color: "#475569",
+                            fontSize: "14px",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            transition: "border 0.2s"
+                        }}
                     >
-                        <RiDeleteBin6Line />
+                        {state.bgImage ? "Replace Background Image" : "+ Upload Background"}
                     </button>
+                    <p style={{ fontSize: "12px", color: "#64748b", textAlign: "center", margin: 0 }}>
+                        Image will be placed behind the QR code.
+                    </p>
                 </div>
             )}
-
-            <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleBgImage} />
-
-            <p className="text-[10px] text-white/30 text-center">
-                ⚠️ Ensure sufficient contrast for QR scanability
-            </p>
         </div>
     )
 }

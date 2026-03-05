@@ -1,13 +1,12 @@
-export default function Panel({ title, children }) {
+export default function Panel({ children }) {
+
   return (
-    <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
-      {title && (
-        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
-          {title}
-        </h3>
-      )}
-      <div className="text-sm text-slate-700">{children}</div>
+
+    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm text-slate-600">
+
+      {children}
+
     </div>
+
   )
 }
-
