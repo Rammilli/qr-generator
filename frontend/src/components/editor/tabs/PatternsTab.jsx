@@ -1,83 +1,127 @@
-import { useState } from "react"
 import { useQR } from "../../../QRContext"
 
+// ── Pattern block previews — full density representation ─────────────────────
 const PATTERNS = [
-    { id: "squares", cells: <><rect x="2" y="2" width="8" height="8" /><rect x="14" y="2" width="8" height="8" /><rect x="2" y="14" width="8" height="8" /></> },
-    { id: "dots", cells: <><circle cx="6" cy="6" r="4" /><circle cx="18" cy="6" r="4" /><circle cx="6" cy="18" r="4" /></> },
-    { id: "rounded", cells: <><rect x="2" y="2" width="8" height="8" rx="3" /><rect x="14" y="2" width="8" height="8" rx="3" /><rect x="2" y="14" width="8" height="8" rx="3" /></> },
-    { id: "diamonds", cells: <><polygon points="6,2 10,6 6,10 2,6" /><polygon points="18,2 22,6 18,10 14,6" /><polygon points="6,14 10,18 6,22 2,18" /></> }
+    {
+        id: "squares",
+        label: "Square",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => (
+                    <rect key={`${row}-${col}`} x={col*12+1} y={row*12+1} width="10" height="10" rx="0" />
+                )))}
+            </svg>
+        )
+    },
+    {
+        id: "dots",
+        label: "Dots",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => (
+                    <circle key={`${row}-${col}`} cx={col*12+6} cy={row*12+6} r="5" />
+                )))}
+            </svg>
+        )
+    },
+    {
+        id: "rounded",
+        label: "Rounded",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => (
+                    <rect key={`${row}-${col}`} x={col*12+1} y={row*12+1} width="10" height="10" rx="3.5" />
+                )))}
+            </svg>
+        )
+    },
+    {
+        id: "diamond",
+        label: "Diamond",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => {
+                    const cx = col*12+6, cy = row*12+6
+                    return <rect key={`${row}-${col}`} x={cx-4} y={cy-4} width="8" height="8" rx="0" transform={`rotate(45 ${cx} ${cy})`} />
+                }))}
+            </svg>
+        )
+    },
+    {
+        id: "star",
+        label: "Vertical",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => (
+                    <rect key={`${row}-${col}`} x={col*12+3} y={row*12+1} width="6" height="10" rx="1.5" />
+                )))}
+            </svg>
+        )
+    },
+    {
+        id: "fluid",
+        label: "Horizontal",
+        preview: (color) => (
+            <svg width="48" height="48" viewBox="0 0 48 48" fill={color}>
+                {[0,1,2,3].map(row => [0,1,2,3].map(col => (
+                    <rect key={`${row}-${col}`} x={col*12+1} y={row*12+3} width="10" height="6" rx="1.5" />
+                )))}
+            </svg>
+        )
+    },
 ]
+
 
 export default function PatternsTab() {
     const { state, update } = useQR()
-    const [tab, setTab] = useState("Design") // "Design" | "Eyes Frame" | "Eyes In"
+
+    const activeColor = state.fgColor || "#2563eb"
+    const previewColor = (isActive) => isActive ? "#2563eb" : "#94a3b8"
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
-            {/* Standard three-way tab exact UI match */}
-            <div style={{ display: "flex", background: "#f1f5f9", padding: "4px", borderRadius: "8px" }}>
-                {["Design", "Eyes Frame", "Eyes In"].map(v => (
-                    <button
-                        key={v}
-                        onClick={() => setTab(v)}
-                        style={{
-                            flex: 1,
-                            padding: "8px 0",
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            borderRadius: "6px",
-                            background: tab === v ? "#fff" : "transparent",
-                            color: tab === v ? "#2563eb" : "#475569",
-                            border: "none",
-                            boxShadow: tab === v ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                            cursor: "pointer"
-                        }}
-                    >
-                        {v}
-                    </button>
-                ))}
-            </div>
-
-            {/* Pattern Grid Exact Density Match */}
-            {tab === "Design" && (
-                <div>
-                    <h4 style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px" }}>
-                        Select Body Pattern
-                    </h4>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
-                        {PATTERNS.map((p, i) => (
+            {/* ── Body Pattern ── */}
+            <div>
+                <h4 style={{ fontSize: "11px", fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "14px" }}>
+                    Module Style
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+                    {PATTERNS.map(p => {
+                        const isActive = state.pattern === p.id
+                        return (
                             <button
-                                key={i}
+                                key={p.id}
                                 onClick={() => update({ pattern: p.id })}
                                 style={{
-                                    aspectRatio: "1/1",
-                                    border: state.pattern === p.id ? "2px solid #2563eb" : "1px solid #e2e8f0",
-                                    background: state.pattern === p.id ? "#eff6ff" : "#fff",
-                                    color: state.pattern === p.id ? "#2563eb" : "#cbd5e1",
-                                    borderRadius: "8px",
                                     display: "flex",
+                                    flexDirection: "column",
                                     alignItems: "center",
-                                    justifyContent: "center",
+                                    gap: "8px",
+                                    padding: "12px 8px",
+                                    border: isActive ? "2px solid #2563eb" : "1.5px solid #e2e8f0",
+                                    background: isActive ? "#eff6ff" : "#fff",
+                                    borderRadius: "10px",
                                     cursor: "pointer",
-                                    transition: "all 0.15s"
+                                    transition: "all 0.15s",
                                 }}
                             >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    {p.cells}
-                                </svg>
+                                {p.preview(previewColor(isActive))}
+                                <span style={{
+                                    fontSize: "11px",
+                                    fontWeight: 700,
+                                    color: isActive ? "#2563eb" : "#64748b",
+                                    letterSpacing: "0.02em"
+                                }}>
+                                    {p.label}
+                                </span>
                             </button>
-                        ))}
-                    </div>
-                    <p style={{ marginTop: "12px", fontSize: "12px", color: "#64748b" }}>Other eye styling not currently bound to API schema. Reverting to base layout.</p>
+                        )
+                    })}
                 </div>
-            )}
+            </div>
 
-            {tab !== "Design" && (
-                <div style={{ padding: "30px", textAlign: "center", color: "#94a3b8", fontSize: "13px", border: "1px dashed #cbd5e1", borderRadius: "8px" }}>
-                    Eye pattern segregation requires API schema update. Currently mapped to global pattern.
-                </div>
-            )}
+
 
         </div>
     )

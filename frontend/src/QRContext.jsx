@@ -163,10 +163,10 @@ export function QRProvider({ children }) {
                 frame_color: s.frameColor || null,
                 qr_size: s.qrSize,
                 pattern: s.pattern || "squares",
+                eye_frame: s.eyeFrame || "square",
                 error_correction: s.errorCorrection || "H",
-                quiet_zone: s.quietZone,
+                quiet_zone: s.quietZone !== undefined ? s.quietZone : 4,
             }
-
             const res = await fetch(`${API_URL}/generate`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
