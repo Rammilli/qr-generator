@@ -109,8 +109,8 @@ def generate_qr_svg(
             image_factory=StyledPilImage,
             module_drawer=drawer,
             color_mask=SolidFillColorMask(
-                back_color=bg_rgba,
-                front_color=fg_rgba,
+                back_color=bg_rgba[:3],
+                front_color=fg_rgba[:3],
             ),
         ).convert("RGBA")
     except Exception as e:

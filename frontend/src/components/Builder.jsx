@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
+import { API_URL } from "../config"
 import Tabs from "./tabs"
 import Accordion from "./accordion"
 import Preview from "./Preview"
@@ -55,7 +56,7 @@ export default function Builder() {
     if (!content) return
     setLoading(true); setError("")
     try {
-      const res = await fetch("http://127.0.0.1:8000/generate", {
+      const res = await fetch(`${API_URL}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
