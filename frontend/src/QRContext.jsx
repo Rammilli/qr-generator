@@ -5,19 +5,19 @@ import { getPlatform, platformLogoDataUri } from "./data/platforms"
 const QRContext = createContext(null)
 
 export const QR_TYPES = [
-    { id: "link",     label: "Link",     icon: "🔗", placeholder: "https://example.com" },
-    { id: "text",     label: "Text",     icon: "📝", placeholder: "Enter your text here" },
-    { id: "vcard",    label: "vCard",    icon: "👤", placeholder: "Full Name" },
-    { id: "pdf",      label: "PDF",      icon: "📄", placeholder: "https://example.com/file.pdf" },
-    { id: "phone",    label: "Phone",    icon: "📞", placeholder: "+1 234 567 8900" },
-    { id: "email",    label: "Email",    icon: "✉️",  placeholder: "email@example.com" },
-    { id: "sms",      label: "SMS",      icon: "💬", placeholder: "+1 234 567 8900" },
+    { id: "link", label: "Link", icon: "🔗", placeholder: "https://example.com" },
+    { id: "text", label: "Text", icon: "📝", placeholder: "Enter your text here" },
+    { id: "vcard", label: "vCard", icon: "👤", placeholder: "Full Name" },
+    { id: "pdf", label: "PDF", icon: "📄", placeholder: "https://example.com/file.pdf" },
+    { id: "phone", label: "Phone", icon: "📞", placeholder: "+1 234 567 8900" },
+    { id: "email", label: "Email", icon: "✉️", placeholder: "email@example.com" },
+    { id: "sms", label: "SMS", icon: "💬", placeholder: "+1 234 567 8900" },
     { id: "whatsapp", label: "WhatsApp", icon: "💚", placeholder: "+1 234 567 8900" },
-    { id: "wifi",     label: "WiFi",     icon: "📶", placeholder: "Network name" },
+    { id: "wifi", label: "WiFi", icon: "📶", placeholder: "Network name" },
     { id: "location", label: "Location", icon: "📍", placeholder: "40.7128" },
-    { id: "event",    label: "Event",    icon: "📅", placeholder: "Event title" },
-    { id: "app",      label: "App",      icon: "📱", placeholder: "App Store URL" },
-    { id: "social",   label: "Social",   icon: "🌐", placeholder: "Select platform" },
+    { id: "event", label: "Event", icon: "📅", placeholder: "Event title" },
+    { id: "app", label: "App", icon: "📱", placeholder: "App Store URL" },
+    { id: "social", label: "Social", icon: "🌐", placeholder: "Select platform" },
 ]
 
 const DEFAULT_STATE = {
@@ -86,7 +86,7 @@ export function QRProvider({ children }) {
             case "email": {
                 const params = []
                 if (s.emailSubject) params.push(`subject=${encodeURIComponent(s.emailSubject)}`)
-                if (s.emailBody)    params.push(`body=${encodeURIComponent(s.emailBody)}`)
+                if (s.emailBody) params.push(`body=${encodeURIComponent(s.emailBody)}`)
                 return `mailto:${s.content}${params.length ? "?" + params.join("&") : ""}`
             }
             case "phone":
@@ -126,14 +126,14 @@ export function QRProvider({ children }) {
 
     const hasContent = (s) => {
         switch (s.qrType) {
-            case "vcard":     return Boolean(s.vcardName.trim())
-            case "sms":       return Boolean(s.smsPhone.trim())
-            case "whatsapp":  return Boolean(s.waPhone.trim())
-            case "wifi":      return Boolean(s.wifiSSID.trim())
-            case "location":  return Boolean(s.lat.trim() && s.lng.trim())
-            case "event":     return Boolean(s.eventTitle.trim())
-            case "app":       return Boolean(s.iosLink.trim() || s.androidLink.trim())
-            default:          return Boolean(s.content.trim())
+            case "vcard": return Boolean(s.vcardName.trim())
+            case "sms": return Boolean(s.smsPhone.trim())
+            case "whatsapp": return Boolean(s.waPhone.trim())
+            case "wifi": return Boolean(s.wifiSSID.trim())
+            case "location": return Boolean(s.lat.trim() && s.lng.trim())
+            case "event": return Boolean(s.eventTitle.trim())
+            case "app": return Boolean(s.iosLink.trim() || s.androidLink.trim())
+            default: return Boolean(s.content.trim())
         }
     }
 
@@ -147,6 +147,29 @@ export function QRProvider({ children }) {
         try {
             const data = buildData(s)
 
+            let finalLogo = s.logo;
+            if (finalLogo && !finalLogo.startsWith("data:image")) {
+                try {
+                    finalLogo = await new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            const canvas = document.createElement("canvas");
+                            canvas.width = img.width || 512;
+                            canvas.height = img.height || 512;
+                            const ctx = canvas.getContext("2d");
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            resolve(canvas.toDataURL("image/png"));
+                        };
+                        img.onerror = reject;
+                        img.src = finalLogo;
+                    });
+                } catch (e) {
+                    console.error("Failed to convert logo to base64:", e);
+                    finalLogo = null;
+                }
+            }
+
             const payload = {
                 data,
                 type: s.qrType,
@@ -154,7 +177,7 @@ export function QRProvider({ children }) {
                 back_color: s.bgColor,
                 gradient_color: s.gradient ? s.gradientColor : null,
                 gradient_direction: s.gradientDirection || "horizontal",
-                logo: s.logo || null,
+                logo: finalLogo || null,
                 logo_size: s.logoSize,
                 frame: s.frame || null,
                 frame_label: s.frameLabel || "SCAN ME",

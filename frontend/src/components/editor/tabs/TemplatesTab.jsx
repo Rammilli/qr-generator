@@ -172,30 +172,31 @@ export default function TemplatesTab() {
       {/* Card grid */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
         {filtered.map(t => (
-          <div key={t.id} style={{
-            display: "flex", flexDirection: "column", gap: "8px",
-            border: "1px solid #e2e8f0", borderRadius: "12px",
-            background: "#fff", padding: "10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-          }}>
+          <div
+            key={t.id}
+            onClick={() => applyDesign(t.design)}
+            onMouseOver={e => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)";
+              e.currentTarget.style.borderColor = "#93c5fd";
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "0 1px 3px rgba(0,0,0,0.05)";
+              e.currentTarget.style.borderColor = "#e2e8f0";
+            }}
+            style={{
+              display: "flex", flexDirection: "column", gap: "8px",
+              border: "1px solid #e2e8f0", borderRadius: "12px",
+              background: "#fff", padding: "10px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+              cursor: "pointer", transition: "all 0.2s ease"
+            }}
+          >
             {t.visual}
             <div>
               <p style={{ fontSize: "12px", fontWeight: 600, color: "#1e293b", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.name}</p>
               <p style={{ fontSize: "11px", color: "#94a3b8", margin: 0 }}>{t.category}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => applyDesign(t.design)}
-              style={{
-                width: "100%", padding: "6px 0", borderRadius: "8px",
-                background: "rgba(19,127,236,0.1)", color: "#137fec",
-                fontSize: "11px", fontWeight: 700, border: "none", cursor: "pointer",
-                transition: "background 0.15s"
-              }}
-              onMouseOver={e => e.currentTarget.style.background = "rgba(19,127,236,0.2)"}
-              onMouseOut={e => e.currentTarget.style.background = "rgba(19,127,236,0.1)"}
-            >
-              Select
-            </button>
           </div>
         ))}
         {filtered.length === 0 && (

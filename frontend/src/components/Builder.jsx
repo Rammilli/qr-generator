@@ -1,6 +1,6 @@
 import { useState } from "react"
-import Tabs from "./Tabs"
-import Accordion from "./Accordion"
+import Tabs from "..//Tabs"
+import Accordion from "..//Accordion"
 import Preview from "./Preview"
 import Templates from "./Templates"
 import Logo from "./Logo"
