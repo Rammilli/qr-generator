@@ -5,109 +5,134 @@ const BRANDS = [
   { id: "whatsapp", color: "#25D366", icon: "💬", name: "WhatsApp" },
   { id: "instagram", color: "#E4405F", icon: "📸", name: "Instagram" },
   { id: "facebook", color: "#1877F2", icon: "👍", name: "Facebook" },
-  { id: "tiktok", color: "#010101", icon: "🎵", name: "TikTok" },
-  { id: "youtube", color: "#FF0000", icon: "▶", name: "YouTube" },
-  { id: "spotify", color: "#1DB954", icon: "🎧", name: "Spotify" },
   { id: "linkedin", color: "#0A66C2", icon: "💼", name: "LinkedIn" },
-  { id: "paypal", color: "#003087", icon: "💳", name: "PayPal" },
-  { id: "wifi", color: "#0ea5e9", icon: "📶", name: "WiFi" },
-  { id: "mail", color: "#ef4444", icon: "✉", name: "Email" },
-  { id: "phone", color: "#16a34a", icon: "📞", name: "Phone" },
-  { id: "location", color: "#ea580c", icon: "📍", name: "Location" },
-  { id: "pdf", color: "#dc2626", icon: "📄", name: "PDF" },
+  { id: "youtube", color: "#FF0000", icon: "▶", name: "YouTube" },
 ]
 
-const EMOJI_TO_URL = (emoji, color) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" rx="12" fill="${color}" opacity="0.12"/><text x="50%" y="50%" dy=".35em" text-anchor="middle" font-size="34">${emoji}</text></svg>`
-  return `data:image/svg+xml;base64,${btoa(svg)}`
+function svgToDataUrl(svg) {
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`
+}
+
+function makeBrandLogo(emoji, color) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="34" fill="${color}" />
+      <text x="50%" y="50%" text-anchor="middle" dy=".35em" font-size="28" fill="white">
+        ${emoji}
+      </text>
+    </svg>
+  `
+  return svgToDataUrl(svg)
 }
 
 export default function Logo({ design, patchDesign }) {
   const fileRef = useRef()
 
   const handleFile = (e) => {
-    const f = e.target.files[0]; if (!f) return
-    const r = new FileReader()
-    r.onload = ev => patchDesign({ logo: ev.target.result })
-    r.readAsDataURL(f)
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+
+    reader.onload = ev => {
+      patchDesign({
+        logo: ev.target.result,
+        logoSize: 18,
+      })
+    }
+
+    reader.readAsDataURL(file)
   }
 
   return (
     <div className="space-y-4">
-      {/* Upload row */}
-      <div className="flex gap-3">
-        <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex-1 h-16 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer flex flex-col items-center justify-center gap-1">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-          </svg>
-          <span className="text-[11px] font-semibold text-slate-400">Upload logo</span>
-        </button>
-        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
 
-        <div className="w-16 h-16 flex-shrink-0 border-2 border-slate-200 rounded-xl bg-white flex items-center justify-center relative overflow-hidden">
+      {/* Upload */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="flex-1 h-16 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:border-blue-400 transition flex items-center justify-center"
+        >
+          <span className="text-sm text-slate-500 font-medium">
+            Upload logo
+          </span>
+        </button>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFile}
+        />
+
+        <div className="w-14 h-14 border rounded-xl bg-white flex items-center justify-center overflow-hidden">
           {design.logo ? (
-            <>
-              <img src={design.logo} alt="Logo" className="max-w-12 max-h-12 object-contain" />
-              <button type="button" onClick={() => patchDesign({ logo: null })}
-                className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </>
+            <img
+              src={design.logo}
+              alt="logo"
+              className="max-w-8 max-h-8 object-contain"
+            />
           ) : (
-            <span className="text-[10px] text-slate-300 text-center leading-snug">No<br />logo</span>
+            <span className="text-xs text-slate-300">No logo</span>
           )}
         </div>
       </div>
 
-      {/* Logo size */}
+      {/* Slider */}
       {design.logo && (
         <div>
-          <div className="flex justify-between mb-1.5">
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Logo Size</label>
-            <span className="text-[11px] text-slate-500">{design.logoSize}%</span>
+          <div className="flex justify-between text-xs mb-1">
+            <span>Logo Size</span>
+            <span>{design.logoSize}%</span>
           </div>
-          <input type="range" min="10" max="40" value={design.logoSize}
-            onChange={e => patchDesign({ logoSize: Number(e.target.value) })} />
+
+          <input
+            type="range"
+            min="12"
+            max="22"
+            value={design.logoSize}
+            onChange={(e) =>
+              patchDesign({
+                logoSize: Number(e.target.value),
+              })
+            }
+            className="w-full"
+          />
         </div>
       )}
 
-      {/* Toggles */}
-      <div className="space-y-2">
-        {[
-          ["removeLogoBg", "Remove background behind logo"],
-          ["logoAsBackground", "Use logo as background"],
-        ].map(([key, label]) => (
-          <label key={key} className="flex items-center gap-2.5 cursor-pointer">
-            <input type="checkbox" checked={design[key] || false}
-              onChange={e => patchDesign({ [key]: e.target.checked })}
-              className="w-4 h-4 accent-blue-600 rounded" />
-            <span className="text-xs text-slate-600">{label}</span>
-          </label>
-        ))}
-      </div>
-
-      {/* Brand presets */}
+      {/* Brand logos */}
       <div>
-        <hr className="border-slate-100 mb-3" />
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Brand Presets</p>
-        <div className="flex flex-wrap gap-2">
-          {BRANDS.map(b => (
-            <button key={b.id} type="button" title={b.name}
+        <p className="text-xs font-medium mb-2 text-slate-500">
+          Brand logos
+        </p>
+
+        <div className="grid grid-cols-5 gap-2">
+          {BRANDS.map((b) => (
+            <button
+              key={b.id}
+              type="button"
               onClick={() => {
-                if (b.id === "none") { patchDesign({ logo: null }); return }
-                patchDesign({ logo: EMOJI_TO_URL(b.icon, b.color) })
+                if (b.id === "none") {
+                  patchDesign({
+                    logo: null,
+                  })
+                  return
+                }
+
+                patchDesign({
+                  logo: makeBrandLogo(b.icon, b.color),
+                  logoSize: 18,
+                })
               }}
-              className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition text-lg
-                ${!design.logo && b.id === "none" ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-300 bg-white"}`}
-              style={b.id !== "none" ? { background: `${b.color}18` } : {}}>
-              {b.id === "none" ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              ) : b.icon}
+              className="w-8 h-8 rounded-md border flex items-center justify-center text-sm hover:border-blue-500 transition-colors"
+              style={{
+                background: b.id !== "none" ? `${b.color}15` : "#fff",
+              }}
+            >
+              {b.id === "none" ? "✕" : b.icon}
             </button>
           ))}
         </div>
