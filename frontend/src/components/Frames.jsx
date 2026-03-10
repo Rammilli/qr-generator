@@ -70,7 +70,14 @@ export default function Frames({ design, patchDesign }) {
           const active = design.frame === f.id
           return (
             <button key={String(f.id)} type="button"
-              onClick={() => patchDesign({ frame: f.id })}
+             onClick={() =>
+  patchDesign({
+    frame: f.id,
+    frameLabel: design.frameLabel || "SCAN ME",
+    frameColor: design.frameColor || "#222222",
+    frameLabelColor: design.frameLabelColor || "#000000"
+  })
+}
               className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border-2 cursor-pointer transition
                 ${active ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-blue-300 bg-white"}`}>
               {f.preview()}

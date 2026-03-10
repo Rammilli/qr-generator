@@ -109,8 +109,8 @@ export default function Logo({ design, patchDesign }) {
           Brand logos
         </p>
 
-        <div className="grid grid-cols-5 gap-2">
-          {BRANDS.map((b) => (
+        <div className="grid grid-cols-5 gap-1.5">
+          {BRANDS.map((b) => (  
             <button
               key={b.id}
               type="button"
@@ -127,7 +127,8 @@ export default function Logo({ design, patchDesign }) {
                   logoSize: 18,
                 })
               }}
-              className="w-8 h-8 rounded-md border flex items-center justify-center text-sm hover:border-blue-500 transition-colors"
+              className="w-7 h-7 rounded-md border flex items-center justify-center text-xs hover:border-blue-500 transition-colors"
+
               style={{
                 background: b.id !== "none" ? `${b.color}15` : "#fff",
               }}

@@ -93,10 +93,10 @@ function MiniPreview({ d }) {
 
   return (
     <div
-      className="w-full aspect-square rounded-lg flex items-center justify-center p-2 relative overflow-hidden group shadow-sm"
+      className="w-full h-20 rounded-lg flex items-center justify-center p-1.5 relative overflow-hidden group shadow-sm"
       style={bgStyle}
     >
-      <div className="bg-white rounded-md p-1.5 w-4/5 aspect-square flex flex-col items-center justify-center relative z-10 shadow-sm border border-white/50">
+      <div className="bg-white rounded-md p-1 w-14 h-14 flex flex-col items-center justify-center relative z-10 shadow-sm border border-white/50">
         <div className="flex w-full aspect-square items-center justify-center p-1 mb-2">
           <div className="grid grid-cols-5 gap-[1px] w-full h-full">
             {[...Array(25)].map((_, i) => (
@@ -162,12 +162,12 @@ export default function TemplatesTab() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {filtered.map(t => (
           <button
             key={t.id}
             onClick={() => applyTemplate(t.design)}
-            className="flex flex-col gap-1.5 rounded-xl bg-white p-2.5 shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left cursor-pointer"
+            className="flex flex-col gap-1 rounded-xl bg-white p-2 shadow-sm border border-slate-200 hover:border-blue-500 hover:shadow-md transition text-left cursor-pointer"
           >
             <MiniPreview d={t.design} />
             <div className="mt-1">
