@@ -29,7 +29,17 @@ export default function LogoTab() {
         if (!file) return
 
         const reader = new FileReader()
-        reader.onload = (ev) => update({ logo: ev.target.result })
+        reader.onload = (ev) => {
+            const img = new Image()
+            img.onload = () => {
+                if (img.width > 1024 || img.height > 1024) {
+                    alert("Only designated pixels (max 1024x1024) are allowed.")
+                    return
+                }
+                update({ logo: ev.target.result })
+            }
+            img.src = ev.target.result
+        }
         reader.readAsDataURL(file)
     }
 
@@ -61,6 +71,9 @@ export default function LogoTab() {
                 >
                     + Upload Image
                 </button>
+                <p style={{ fontSize: "11px", color: "#64748b", marginTop: "8px", textAlign: "center" }}>
+                    Only designated pixels (max 1024x1024) are allowed.
+                </p>
             </div>
 
             {/* Logo Presets Grid exactly like reference */}

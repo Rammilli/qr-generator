@@ -66,7 +66,7 @@ export function QRProvider({ children }) {
 
         try {
             let finalLogo = s.logo;
-            if (finalLogo && finalLogo.startsWith("data:image/svg+xml")) {
+            if (finalLogo && (finalLogo.startsWith("data:image/svg+xml") || finalLogo.startsWith("http"))) {
                 try {
                     finalLogo = await new Promise((resolve, reject) => {
                         const img = new Image();
@@ -83,7 +83,7 @@ export function QRProvider({ children }) {
                         img.src = finalLogo;
                     });
                 } catch (e) {
-                    console.error("Failed to convert SVG logo to PNG:", e);
+                    console.error("Failed to convert logo to PNG:", e);
                 }
             }
 
